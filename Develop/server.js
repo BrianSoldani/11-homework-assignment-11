@@ -1,5 +1,6 @@
 // Series of npm packages that we will use to give our server useful functionality
 var express = require(`express`);
+var fs = require(`fs`);
 var path = require(`path`);
 
 // Tells node that we are creating an "express" server
@@ -11,18 +12,23 @@ var PORT = process.env.PORT || 8080;
 // Sets up the Express app to handle data parsing
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.static(path.join(__dirname, `Develop/public`)));
 
-
-// ROUTER
+// ROUTES
 // The below points our server to a series of "route" files.
 // These routes give our server a "map" of how to respond when users visit or request data from various URLs.
+require(`./routes/htmlRoutes`)(app);
+require(`./routes/apiRoutes`)(app);
 
 
 
+  // Get Notes - collect data in an array
+
+let notesContent = [];
 
 
 
 // The below code effectively "starts" our server
 app.listen(PORT, function() {
-    console.log("App listening on PORT: " + PORT);
-  });
+  console.log("App listening on PORT: " + PORT);
+});
