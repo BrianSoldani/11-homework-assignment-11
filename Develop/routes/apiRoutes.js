@@ -1,13 +1,9 @@
 // ===============================================================================
 // LOAD DATA
-// We are linking our routes to a series of "data" sources.
-// These data sources hold arrays of information
+// We are linking our routes to an index page and a notes data page.
 // ===============================================================================
-var express = require(`express`);
 var fs = require(`fs`);
-var path = require(`path`);
-var notes = require(`../db/db.json`);
-
+var path = require("path")
 
 // ===============================================================================
 // ROUTING
@@ -15,43 +11,60 @@ var notes = require(`../db/db.json`);
 
 module.exports = function(app) {
   // API GET Requests
-  // Below code handles when users "visit" a page.
+  // Below code handles when users visit a page.
   // In each of the below cases when a user visits a link
-  // (ex: localhost:PORT/api/admin... they are shown a JSON of the data in the table)
   // ---------------------------------------------------------------------------
 
   app.get(`/api/notes`, function(req, res) {
-    res.sendFile(path.json(__dirname, `Develop/db/db.json`));
+      // Reads notes from the json file
+    let notesContent = fs.readFileSync(path.join(__dirname, `../db/db.json`), `utf-8`);
+    // Sends as an object to browser
+    return res.json(JSON.parse(notesContent));
   });
 
   // API POST Requests
-  // Below code handles when a user submits a form and thus submits data to the server.
+  // Below code handles when a user submits a note and thus submits data to the server.
   // In each of the below cases, when a user submits form data (a JSON object)
-  // ...the JSON is pushed to the appropriate JavaScript array
-  // (ex. User fills out a reservation request... this data is then sent to the server...
-  // Then the server saves the data to the tableData array)
+  // Then the server saves the data to the json array
   // ---------------------------------------------------------------------------
 
+  // Send new note to the json file
   app.post(`/api/notes`, function(req, res) {
-    // Note the code here. Our "server" will respond to requests and let users know if they have a table or not.
-    // It will do this by sending out the value "true" have a table
+   
     // req.body is available since we're using the body parsing middleware
     
-    notesContent = fs.readFileSync(`./Develop/db/db.json`, `utf-8`);
+    let notesContent = fs.readFileSync(path.join(__dirname, `../db/db.json`), `utf-8`);
 
+    // Parse as an array (objectify)
+    notesContent = JSON.parse(notesContent);
+    // Set new notes id
+    req.body.id = notesContent.length;
+    // Add the new note to other notes
+    notesContent.push(req.body); // req.body - user input
     console.log(notesContent);
-      
+    // Stringify so you can write to file
+    // Writes the new note to file
+    fs.writeFileSync(path.join(__dirname, `../db/db.json`), JSON.stringify(notesContent), "utf8");
+    // Send it back to the browser(client)
+    res.json(notesContent);
     
   });
 
   // ---------------------------------------------------------------------------
-  // I added this below code so you could clear out the table while working with the functionality.
-  // ?????????????????????????????????????????????
-//   app.post("/api/clear", function(req, res) {
-//     // Empty out the arrays of data
-//     tableData.length = 0;
-//     waitListData.length = 0;
+  // Deleting a Note
+  // This code will remove the note selected and return the new array of notes
+  app.delete("/api/notes/:id", function(req, res) {
+    // Empty out the deleted note by id
+    let removeNote = req.params.id;
+    let notesContent = fs.readFileSync(path.join(__dirname, `../db/db.json`), `utf-8`);
+    notesContent = JSON.parse(notesContent);
+    notesContent.splice(removeNote, 1);
+    
 
-//     res.json({ ok: true });
-//   });
+    req.body.id = notesContent.length;
+    console.log(notesContent);
+    fs.writeFileSync(path.join(__dirname, `../db/db.json`), JSON.stringify(notesContent), "utf8");
+
+    res.json({ ok: true });
+  });
 };

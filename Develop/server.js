@@ -12,21 +12,13 @@ var PORT = process.env.PORT || 8080;
 // Sets up the Express app to handle data parsing
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, `Develop/public`)));
+app.use(express.static(path.join(__dirname, `public`)));
 
 // ROUTES
 // The below points our server to a series of "route" files.
 // These routes give our server a "map" of how to respond when users visit or request data from various URLs.
-require(`./routes/htmlRoutes`)(app);
 require(`./routes/apiRoutes`)(app);
-
-
-
-  // Get Notes - collect data in an array
-
-let notesContent = [];
-
-
+require(`./routes/htmlRoutes`)(app);
 
 // The below code effectively "starts" our server
 app.listen(PORT, function() {
