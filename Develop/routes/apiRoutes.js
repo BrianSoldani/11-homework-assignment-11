@@ -3,7 +3,8 @@
 // We are linking our routes to an index page and a notes data page.
 // ===============================================================================
 var fs = require(`fs`);
-var path = require("path")
+var path = require("path");
+
 
 // ===============================================================================
 // ROUTING
@@ -39,6 +40,7 @@ module.exports = function(app) {
     notesContent = JSON.parse(notesContent);
     // Set new notes id
     req.body.id = notesContent.length;
+    console.log(req.body.id);
     // Add the new note to other notes
     notesContent.push(req.body); // req.body - user input
     console.log(notesContent);
@@ -59,12 +61,9 @@ module.exports = function(app) {
     let notesContent = fs.readFileSync(path.join(__dirname, `../db/db.json`), `utf-8`);
     notesContent = JSON.parse(notesContent);
     notesContent.splice(removeNote, 1);
-    
 
-    req.body.id = notesContent.length;
-    console.log(notesContent);
     fs.writeFileSync(path.join(__dirname, `../db/db.json`), JSON.stringify(notesContent), "utf8");
-
+ 
     res.json({ ok: true });
   });
 };
