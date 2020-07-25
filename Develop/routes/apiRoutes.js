@@ -40,10 +40,10 @@ module.exports = function(app) {
     notesContent = JSON.parse(notesContent);
     // Set new notes id
     req.body.id = notesContent.length;
-    console.log(req.body.id);
+    
     // Add the new note to other notes
     notesContent.push(req.body); // req.body - user input
-    console.log(notesContent);
+    
     // Stringify so you can write to file
     // Writes the new note to file
     fs.writeFileSync(path.join(__dirname, `../db/db.json`), JSON.stringify(notesContent), "utf8");
@@ -61,6 +61,11 @@ module.exports = function(app) {
     let notesContent = fs.readFileSync(path.join(__dirname, `../db/db.json`), `utf-8`);
     notesContent = JSON.parse(notesContent);
     notesContent.splice(removeNote, 1);
+    
+    for (let i = removeNote; i < notesContent.length; i++) {
+      const note = notesContent[i];
+      note.id = i;
+    }
 
     fs.writeFileSync(path.join(__dirname, `../db/db.json`), JSON.stringify(notesContent), "utf8");
  
